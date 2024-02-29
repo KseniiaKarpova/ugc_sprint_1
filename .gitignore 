@@ -1,7 +1,8 @@
 # IntellijIdea files
 *.iml
 out
-/.ipynb_checkpoints
+*.ipynb_checkpoints/
+.idea/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
