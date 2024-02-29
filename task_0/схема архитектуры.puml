@@ -1,0 +1,77 @@
+@startuml
+!include <logos/kafka>
+!include <logos/nginx>
+!include <logos/django>
+!include <logos/postgresql>
+!include <logos/elasticsearch>
+!include <logos/redis>
+
+title Архитектура Проекта (Онлайн Кинотеатр)
+
+actor "Клиент"
+actor "Аналитик"
+actor "Администратор"
+
+package Nginx {
+    component "<$nginx>" as nginx 
+}
+package AuthAPI {
+    [auth_api] 
+    database "<$postgresql>" as auth_postgres #White
+    database "<$redis>" as auth_redis #White
+}
+package Admin {
+    [django_admin]
+    database "<$postgresql>" as admin_postgres #White
+}
+package Cinema_api {
+    [cinema_api] 
+    'database "<$postgresql>" as cinema_postgres #White
+    database "<$elasticsearch>" as cinema_elasticsearch #White
+    database "<$redis>" as cinema_redis #White
+    [etl]
+}
+package FileAPI {
+    [file_api] 
+    database "<$postgresql>" as file_postgresql #White
+    database Minio #White
+}
+package UGC {
+    [etl_ugs]
+    [api_ugs]
+    queue "<$kafka>" as Kafka #White
+    database Clickhouse #White
+}
+
+
+[Клиент] --> [nginx]: Просмотр и поиск фильмов
+[nginx] --> [cinema_api] : <<Клиент>>
+[cinema_api] -[#blue]-> [auth_api]: Авторизация/Аутентификация
+[auth_api] --> auth_postgres: Проверка пользователя
+[auth_api] <-[#green] auth_postgres: Пользователь найден/ Успешно зарегестрирован
+[auth_api] --> [auth_redis]: Проверка/Обновление/Сохранение токена
+[auth_api] -> [auth_redis]
+[auth_api] <-[#green] [auth_redis]: Токен актуален
+[cinema_api] <-[#green]- [auth_api]: Успешный вход в систему
+[cinema_api] <--> cinema_redis: Кеширование запросов
+[cinema_api] --> cinema_elasticsearch: Поиск фильмов
+[etl] --> admin_postgres: Проверяет наличие новых фильмов
+[etl] --> cinema_elasticsearch: Добавление новых фильмов
+[cinema_api] <----> file_api: Получение стим-фильма
+[file_api] <--> Minio : Получение/Сохранение фильма
+[file_api] --> [file_postgresql]: Логирование сохраненных файлов
+[Администратор] --> [nginx]: Изменение фильмов (Добавление, удаление, обновление)
+[nginx] --> [django_admin] : <<Администратор>>
+[django_admin] -[#blue]-> [auth_api]: Авторизация/Аутентификация
+[django_admin] <-[#green]- [auth_api]: Успешный вход
+[django_admin] --> [admin_postgres]: Обновление данных
+[django_admin] --> [file_api]: Сохранение фильма
+[cinema_api] --> api_ugs : Логирование активностей пользователей
+[api_ugs] --> Kafka
+[etl_ugs] --> Kafka
+[etl_ugs] --> Clickhouse
+[Аналитик] ----> Clickhouse : Получение витрин для аналитики
+
+
+skinparam PackageBackgroundColor Azure
+@enduml
