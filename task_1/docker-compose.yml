@@ -121,6 +121,22 @@ services:
       - KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS=kafka-0:9092
       - KAFKA_CLUSTERS_0_NAME=kraft
 
+  #-----UGC service-----
+  ugc:
+    container_name: UGC_API
+    command: gunicorn main:app --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:7075 --reload
+    env_file:
+      - .env
+    environment:
+      PYTHONPATH: /src
+    volumes:
+      - ./UGC:/src
+    build:
+      context: UGC
+      dockerfile: Dockerfile
+    depends_on:
+      kafka-0:
+        condition: service_started
 
 volumes:
   kafka_0_data:
