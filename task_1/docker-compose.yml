@@ -122,21 +122,33 @@ services:
       - KAFKA_CLUSTERS_0_NAME=kraft
 
   #-----UGC service-----
-  ugc:
+  ugc_api:
     container_name: UGC_API
     command: gunicorn main:app --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:7075 --reload
     env_file:
       - .env
     environment:
-      PYTHONPATH: /src
+      PYTHONPATH: /app
     volumes:
-      - ./UGC:/src
+      - ./UGC:/app
     build:
       context: UGC
       dockerfile: Dockerfile
     depends_on:
       kafka-0:
         condition: service_started
+
+  nginx:
+    image: nginx:1.19.2
+    container_name: nginx
+    volumes:
+      - ./Nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./Nginx/ugc_api.conf:/etc/nginx/conf.d/ugc_api.conf:ro
+    depends_on:
+      ugc_api:
+        condition: service_started
+    ports:
+      - "2090:2090"
 
 volumes:
   kafka_0_data:
