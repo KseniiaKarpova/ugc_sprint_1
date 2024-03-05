@@ -5,6 +5,7 @@ from uuid import UUID
 from core.config import settings
 from schemas.action import UserAction
 from core.handlers import require_access_token, JwtHandler
+from exceptions import success
 
 
 router = APIRouter()
@@ -24,4 +25,4 @@ async def create_action(
         film_id=film_id,
         ).model_dump_json().encode('utf-8')
     await producer.send(topic=settings.kafka.topic, value=data)
-    return data
+    return success
