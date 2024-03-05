@@ -1,29 +1,27 @@
 import logging
 from contextlib import asynccontextmanager
-from functools import lru_cache
 import uvicorn
-from api.v1 import films
-from core import config
+from api.v1 import action
+from core.config import settings
 from core.logger import LOGGING
-from db import kafka
-from fastapi import FastAPI, Request, status
+from db import kafka, redis
+from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from aiokafka import AIOKafkaProducer
-
-
-@lru_cache()
-def get_settings():
-    return config.Settings()
-
-settings = get_settings()
+from redis.asyncio import Redis
+import asyncio
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    kafka.kafka = AIOKafkaProducer(bootstrap_servers=f'{settings.kafka.host}:{settings.kafka.port}')
+    kafka.kafka = AIOKafkaProducer(
+        loop=asyncio.get_event_loop(),
+        bootstrap_servers=f'{settings.kafka.host}:9092')
+    redis.redis = Redis(host=settings.redis.host, port=settings.redis.port)
     await kafka.kafka.start()
     yield
     await kafka.kafka.stop()
+    await redis.redis.close()
 
 
 app = FastAPI(
@@ -35,8 +33,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-
-app.include_router(films.router, prefix='/api/v1/films', tags=['films'])
+app.include_router(action.router, prefix='/api/v1/action', tags=['films'])
 
 
 if __name__ == '__main__':
