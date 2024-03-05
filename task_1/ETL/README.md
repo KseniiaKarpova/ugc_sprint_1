@@ -3,16 +3,13 @@
 
 ### Руководство по установке и настройке Apache Airflow на сервер с использованием Docker
 
+
 ```Bash
-curl -LfO 'https://airflow.apache.org/docs/apache-airflow/2.6.2/docker-compose.yaml'
+mkdir -p ./logs ./plugins ./config
 ```
 
 ```Bash
-mkdir -p ./dags ./logs ./plugins ./config
-```
-
-```Bash
-echo -e "AIRFLOW_UID=$(id -u)" > .env
+echo -e "AIRFLOW_UID=$(id -u)\nAIRFLOW_GID=0" > .env
 ```
 
 ```Bash
