@@ -7,13 +7,29 @@ services:
     container_name: zookeeper
     hostname: zookeeper
 
+  airflow:
+    image: apache/airflow:2.2.3
+    env_file:
+      - .env
+    environment:
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__FERNET_KEY=${FERNET_KEY}
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=False
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__KAFKA__CONSUMER_KAFKA_CONFIG=bootstrap.servers=${KAFKA_HOST}:${KAFKA_PORT}
+      - AIRFLOW__KAFKA__CONSUMER_TOPIC=${KAFKA_TOPIC}
+    volumes:
+      - ./dags:/opt/airflow/dags
+    ports:
+      - "8080:8080"
+
   clickhouse-node1:
     image: clickhouse/clickhouse-server:23
     container_name: clickhouse-node1
     hostname: clickhouse-node1
     ports:
       - "8123:8123"
-      - "9000:9000"
+      - "9004:9000"
     volumes:
       - ./data/node1:/etc/clickhouse-server
     depends_on:
