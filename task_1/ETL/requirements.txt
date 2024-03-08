@@ -1,0 +1,4 @@
+airflow-provider-kafka
+clickhouse_driver
+apache-airflow
+confluent-kafka

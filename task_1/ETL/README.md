@@ -19,9 +19,19 @@ docker-compose up -d
 ```Bash
 docker-compose ps
 ```
-
+_____________________
 go to http://localhost:8080/
 
 Логин: airflow
 
 Пароль: airflow
+_____________________
+
+
+####  Объеденим контайнеры в одну сеть:
+```Bash
+docker network connect etl_etl-network task_1-kafka-0-1
+docker network connect etl_etl-network clickhouse-node1
+
+docker network inspect etl_etl-network
+```
