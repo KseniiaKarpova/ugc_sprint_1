@@ -15,7 +15,6 @@ router = APIRouter()
 async def create_action(
     action: str,
     film_id: UUID,
-    uuid: UUID,
     producer: AIOKafkaProducer = Depends(get_kafka),
     jwt_handler: JwtHandler = Depends(require_access_token)
 ):
