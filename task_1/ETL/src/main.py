@@ -20,7 +20,7 @@ def main():
         if time.time() - start > clickhouse_settings.wait_time:
             clickhouse.write(messages)
             kafka.commit()
-            logger.debug('%s rows inserted', len(messages))
+            logger.debug(f'Add {len(messages)} rows')
             messages = []
             gc.collect()
             start = time.time()

@@ -27,8 +27,6 @@ class ClickHouseWriter(AbstractWriter):
     def write(self, messages: list[UserAction]):
         """
         Метод записи сообщений в ClickHouse
-
-        :param messages: список сообщений
         """
         try:
             self.__write_event(messages)
