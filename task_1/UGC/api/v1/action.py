@@ -21,7 +21,7 @@ async def create_action(
     user = await jwt_handler.get_current_user()
     data = UserAction(
         action=action,
-        user_id=str(user),
+        user_id=str(user.uuid),
         film_id=film_id,
         ).model_dump_json().encode('utf-8')
     await producer.send(topic=settings.kafka.topic, value=data)
