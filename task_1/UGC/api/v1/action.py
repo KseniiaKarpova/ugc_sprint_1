@@ -1,21 +1,22 @@
-from fastapi import APIRouter, Depends
-from aiokafka import AIOKafkaProducer
-from db.kafka import get_kafka
 from uuid import UUID
-from core.config import settings
-from schemas.action import UserAction
-from core.handlers import require_access_token, JwtHandler
-from exceptions import success
 
+from aiokafka import AIOKafkaProducer
+from core.config import settings
+from core.handlers import JwtHandler, require_access_token
+from db.kafka import get_kafka
+from exceptions import success
+from fastapi import APIRouter, Depends
+from schemas.action import UserAction
 
 router = APIRouter()
+
 
 @router.post('/')
 async def create_action(
     action: str,
     film_id: UUID,
     uuid: UUID,
-    producer : AIOKafkaProducer = Depends(get_kafka),
+    producer: AIOKafkaProducer = Depends(get_kafka),
     #jwt_handler: JwtHandler = Depends(require_access_token)
 ):
     #user = await jwt_handler.get_current_user()
