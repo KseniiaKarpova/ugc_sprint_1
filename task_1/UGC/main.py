@@ -1,15 +1,16 @@
+import asyncio
 import logging
 from contextlib import asynccontextmanager
+
 import uvicorn
+from aiokafka import AIOKafkaProducer
 from api.v1 import action
 from core.config import settings
 from core.logger import LOGGING
 from db import kafka, redis
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-from aiokafka import AIOKafkaProducer
 from redis.asyncio import Redis
-import asyncio
 
 
 @asynccontextmanager

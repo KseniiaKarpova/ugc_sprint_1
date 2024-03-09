@@ -16,6 +16,7 @@ services:
       - "9000:9000"
     volumes:
       - ./data/node1:/etc/clickhouse-server
+      - ./data/init-db/init-shard1.sql:/docker-entrypoint-initdb.d/init.sql
     depends_on:
       - zookeeper
 
@@ -28,6 +29,7 @@ services:
       - "9001:9000"
     volumes:
       - ./data/node2:/etc/clickhouse-server
+      - ./data/init-db/init-shard2.sql:/docker-entrypoint-initdb.d/init.sql
     depends_on:
       - zookeeper
 
@@ -149,6 +151,29 @@ services:
         condition: service_started
     ports:
       - "2090:2090"
+
+  etl:
+    build:
+      context: ETL
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      kafka-0:
+        condition: service_started
+      kafka-1:
+        condition: service_started
+      kafka-2:
+        condition: service_started
+      clickhouse-node1:
+        condition: service_started
+      clickhouse-node2:
+        condition: service_started
+      clickhouse-node3:
+        condition: service_started
+      clickhouse-node4:
+        condition: service_started
+    env_file:
+      - .env
 
 volumes:
   kafka_0_data:
