@@ -156,6 +156,7 @@ services:
     build:
       context: ETL
       dockerfile: Dockerfile
+    restart: always
     depends_on:
       kafka-0:
         condition: service_started
