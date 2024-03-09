@@ -1,12 +1,16 @@
-FROM apache/airflow:latest
+FROM python:3.10
 
-# Switch to the "airflow" user
-USER airflow
+WORKDIR /app
 
-# Install pip
-RUN curl -O 'https://bootstrap.pypa.io/get-pip.py' && \
-    python3 get-pip.py --user
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Install libraries from requirements.txt
-COPY requirements.txt /requirements.txt
-RUN pip install --user -r /requirements.txt
+COPY requirements.txt .
+
+RUN  apt-get update \
+     && pip install --upgrade pip \
+     && pip install -r requirements.txt
+
+COPY ./src .
+
+ENTRYPOINT ["python", "main.py"]
