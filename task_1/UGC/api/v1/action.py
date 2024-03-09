@@ -17,12 +17,12 @@ async def create_action(
     film_id: UUID,
     uuid: UUID,
     producer: AIOKafkaProducer = Depends(get_kafka),
-    #jwt_handler: JwtHandler = Depends(require_access_token)
+    jwt_handler: JwtHandler = Depends(require_access_token)
 ):
-    #user = await jwt_handler.get_current_user()
+    user = await jwt_handler.get_current_user()
     data = UserAction(
         action=action,
-        user_id=str(uuid),
+        user_id=str(user),
         film_id=film_id,
         ).model_dump_json().encode('utf-8')
     await producer.send(topic=settings.kafka.topic, value=data)
