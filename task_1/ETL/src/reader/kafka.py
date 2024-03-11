@@ -30,14 +30,16 @@ class KafkaReader(AbstractReader):
         Метод для чтения сообщений из Kafka
         """
         for message in self.__consumer:
-            message = json.loads(message.value.decode('utf8'))
-
-            yield UserAction(
-                action=message['action'],
-                user_id=message['user_id'],
-                film_id=message['film_id'],
-                created_at=message['created_at'],
-            )
+            message: dict = json.loads(message.value.decode('utf8'))
+            try:
+                yield UserAction(
+                    action=message['action'],
+                    user_id=message['user_id'],
+                    film_id=message['film_id'],
+                    created_at=message['created_at'],
+                )
+            except KeyError:
+                yield []
 
     def commit(self):
         """Метод для подтверждения прочтения сообщения."""

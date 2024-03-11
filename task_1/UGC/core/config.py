@@ -28,11 +28,19 @@ class KafkaSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix='kafka_')
 
 
+class JaegerSettings(BaseSettings):
+    host: str = ...
+    port: int = ...
+    enable: bool = ...
+    model_config: str = SettingsConfigDict(env_prefix='jaeger_')
+
+
 class APPSettings(BaseSettings):
     project_name: str = 'UGS API'
     kafka: KafkaSettings = KafkaSettings()
     redis: RedisSettings = RedisSettings()
     auth: AuthSettings = AuthSettings()
+    jaeger: JaegerSettings = JaegerSettings()
 
 
 settings = APPSettings()

@@ -13,4 +13,6 @@ file_not_found = HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Fi
 forbidden_error = HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You have been denied access")
 server_error = HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="ooops")
 
-success = HTTPException(status_code=status.HTTP_201_CREATED, )
+success = HTTPException(status_code=status.HTTP_201_CREATED)
+
+unauthorized = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)

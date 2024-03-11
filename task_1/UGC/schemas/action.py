@@ -6,6 +6,6 @@ from pydantic import BaseModel, Field
 
 class UserAction(BaseModel):
     action: str
-    user_id: UUID
-    film_id: UUID
-    created_at: datetime = Field(default=datetime.utcnow())
+    user_id: str
+    film_id: str
+    created_at: datetime

@@ -16,6 +16,8 @@ def main():
     messages = []
     start = time.time()
     for message in kafka.read_data():
+        if not message:
+            continue
         messages.append(message)
         if time.time() - start > clickhouse_settings.wait_time:
             clickhouse.write(messages)

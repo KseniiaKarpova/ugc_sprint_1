@@ -6,10 +6,11 @@ from typing import Optional
 from core.config import settings
 from db.redis import get_redis
 from exceptions import forbidden_error, server_error
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt
 from schemas.auth import JWTUserData
+from exceptions import forbidden_error, unauthorized
 
 
 def decode_token(token: str) -> Optional[dict]:
@@ -18,9 +19,7 @@ def decode_token(token: str) -> Optional[dict]:
             token, settings.auth.secret_key, algorithms=[
                 settings.auth.jwt_algorithm])
         if decoded_token['exp'] < time.time():
-            raise HTTPException(
-                status_code=http.HTTPStatus.FORBIDDEN,
-                detail='Invalid or expired token.')
+            raise forbidden_error
         return decoded_token
     except Exception:
         raise server_error
@@ -30,9 +29,7 @@ async def jwt_user_data(subject: dict):
     subject: dict = json.loads(subject)
     login, uuid = subject.get('login'), subject.get('uuid')
     if not login or not uuid:
-        raise HTTPException(
-            status_code=http.HTTPStatus.FORBIDDEN,
-            detail='Invalid authorization code.')
+        raise forbidden_error
     return JWTUserData(login=login, uuid=uuid)
 
 
@@ -49,9 +46,7 @@ class JWTBearer(HTTPBearer):
         decoded_token = decode_token(credentials.credentials)
         subject, jti, type = await self.check_fields(decoded_token=decoded_token)
         if type != self.token_type:
-            raise HTTPException(
-                status_code=http.HTTPStatus.FORBIDDEN,
-                detail='wrong token')
+            raise forbidden_error
         return {
             'subject': subject,
             'jti': jti,
@@ -66,22 +61,16 @@ class JWTBearer(HTTPBearer):
 
     async def check_credentials(self, credentials: HTTPAuthorizationCredentials):
         if not credentials:
-            raise HTTPException(
-                status_code=http.HTTPStatus.FORBIDDEN,
-                detail='Invalid authorization code.')
+            raise forbidden_error
         if not credentials.scheme == 'Bearer':
-            raise HTTPException(
-                status_code=http.HTTPStatus.UNAUTHORIZED,
-                detail='Only Bearer token might be accepted')
+            raise unauthorized
 
     async def check_fields(self, decoded_token: dict):
         subject: dict = decoded_token.get('sub')
         jti = decoded_token.get('jti')
         type = decoded_token.get('type')
         if not subject or not jti or not type:
-            raise HTTPException(
-                status_code=http.HTTPStatus.FORBIDDEN,
-                detail='Invalid or expired token.')
+            raise forbidden_error
         await self.check_denylist(jti=jti)
         return subject, jti, type
 
