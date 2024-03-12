@@ -7,6 +7,7 @@ from opentelemetry.sdk.trace.export import (BatchSpanProcessor,
                                             ConsoleSpanExporter)
 from functools import wraps
 
+
 settings = config.APPSettings()
 
 
@@ -52,6 +53,8 @@ class TraceAction:
     def __call__(self, func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
+            if settings.jaeger.enable is False or not settings.jaeger.enable:
+                return await func(*args, **kwargs)
             with tracer.start_as_current_span(self.span_name):
                 return await func(*args, **kwargs)
         return wrapper

@@ -7,7 +7,7 @@ from sqlalchemy import and_, asc, desc, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Query
-from utils.jaeger import tracer
+from utils.jaeger import tracer, TraceAction
 
 
 class AlchemyBaseStorage(ABC):
@@ -129,20 +129,20 @@ class AlchemyBaseStorage(ABC):
         instance = await self.execute_and_commit(query=query)
         return instance
 
+    @TraceAction('storage-request')
     async def execute(self, query: Query):
         async with self.session:
             try:
-                with tracer.start_as_current_span('storage-request'):
-                    instance = await self.session.execute(query)
+                instance = await self.session.execute(query)
             except IntegrityError:
                 raise integrity_error
         return instance
 
+    @TraceAction('storage-request-execute-and-commit')
     async def execute_and_commit(self, query: Query):
         async with self.session:
             try:
-                with tracer.start_as_current_span('storage-request'):
-                    instance = await self.session.execute(query)
+                instance = await self.session.execute(query)
             except IntegrityError:
                 raise integrity_error
             if self.commit_mode is True:

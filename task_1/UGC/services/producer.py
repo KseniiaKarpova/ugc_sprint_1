@@ -9,6 +9,7 @@ from schemas.auth import JWTUserData
 from core.config import settings
 from exceptions import success
 from datetime import datetime
+from opentelemetry import trace
 
 class ProducerService:
     def __init__(self, producer: AIOKafkaProducer) -> None:

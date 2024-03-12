@@ -5,6 +5,7 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import (BatchSpanProcessor,
                                             ConsoleSpanExporter)
+from functools import wraps
 
 settings = config.APPSettings()
 
@@ -42,3 +43,17 @@ def configure_tracer(host, port, service_name) -> None:
     )
     # Чтобы видеть трейсы в консоли
     trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
+
+
+class TraceAction:
+    def __init__(self, span_name):
+        self.span_name = span_name
+
+    def __call__(self, func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            if settings.jaeger.enable is False or not settings.jaeger.enable:
+                return await func(*args, **kwargs)
+            with tracer.start_as_current_span(self.span_name):
+                return await func(*args, **kwargs)
+        return wrapper

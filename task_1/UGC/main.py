@@ -14,7 +14,6 @@ from redis.asyncio import Redis
 from utils.jaeger import configure_tracer, tracer
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from utils.constraint import RequestLimit
-from opentelemetry.trace import SpanKind
 
 
 
@@ -53,22 +52,22 @@ async def before_request(request: Request, call_next):
            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
            content={'detail': 'Too many requests'}
        )
-
     response = await call_next(request)
     request_id = request.headers.get('X-Request-Id')
+    if settings.jaeger.enable is False:
+        return response
     if not request_id:
         return ORJSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST, content={
                 'detail': 'X-Request-Id is required'})
     path = request.url.path
     method = request.method
-    with tracer.start_as_current_span(f"HTTP {method} {path}", kind=SpanKind.SERVER) as span:
+    with tracer.start_as_current_span(f"HTTP {method} {path}") as span:
         span.set_attribute("http.method", method)
         span.set_attribute("http.url", str(request.url))
         span.set_attribute("http.request_id", request_id)
-        response = await call_next(request)
         span.set_attribute("http.status_code", response.status_code)
-        return response
+    return response
 
 FastAPIInstrumentor.instrument_app(app)
 
