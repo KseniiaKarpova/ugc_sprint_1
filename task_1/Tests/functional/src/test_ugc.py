@@ -1,7 +1,7 @@
 import pytest
 from functional.settings import test_settings
 import uuid
-import time
+
 
 user_create = {
             "login": "test_login",
@@ -12,6 +12,7 @@ user_login = {
             "login": "test_login",
             "password": "test_password",
             "agent": "test_device"}
+
 
 @pytest.mark.parametrize(
     'in_data, out_data',

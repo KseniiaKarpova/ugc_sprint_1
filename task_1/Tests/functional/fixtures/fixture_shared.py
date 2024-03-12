@@ -4,7 +4,6 @@ import pytest_asyncio
 from aiohttp import ClientSession
 
 
-
 @pytest_asyncio.fixture(scope='session')
 def event_loop():
     loop = asyncio.new_event_loop()

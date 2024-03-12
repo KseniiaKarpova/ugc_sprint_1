@@ -7,7 +7,7 @@ from sqlalchemy import and_, asc, desc, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Query
-from utils.jaeger import tracer, TraceAction
+from utils.jaeger import TraceAction
 
 
 class AlchemyBaseStorage(ABC):

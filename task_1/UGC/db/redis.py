@@ -1,5 +1,3 @@
-from typing import Optional
-
 from redis.asyncio import Redis
 
 redis: Redis | None = None

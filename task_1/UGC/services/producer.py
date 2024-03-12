@@ -9,7 +9,7 @@ from schemas.auth import JWTUserData
 from core.config import settings
 from exceptions import success
 from datetime import datetime
-from opentelemetry import trace
+
 
 class ProducerService:
     def __init__(self, producer: AIOKafkaProducer) -> None:
@@ -29,6 +29,6 @@ class ProducerService:
 
 @lru_cache()
 def get_producer_service(
-    producer: AIOKafkaProducer = Depends(get_kafka),
-    ):
+        producer: AIOKafkaProducer = Depends(get_kafka),
+        ):
     return ProducerService(producer=producer)

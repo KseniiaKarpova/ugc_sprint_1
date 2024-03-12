@@ -1,4 +1,3 @@
-import http
 import json
 import time
 from typing import Optional
@@ -10,7 +9,7 @@ from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt
 from schemas.auth import JWTUserData
-from exceptions import forbidden_error, unauthorized
+from exceptions import unauthorized
 
 
 def decode_token(token: str) -> Optional[dict]:
