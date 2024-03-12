@@ -13,3 +13,13 @@ Edit .env file.
 ```bash
 docker-compose up -d --build
 ```
+
+
+# ТЕСТЫ
+```bash
+docker-compose -f docker-compose-tests.yml up
+```
+Выполнить AuthAPI readme в контейнере test_auth_api
+```bash
+docker-compose -f docker-compose-tests.yml up
+```
